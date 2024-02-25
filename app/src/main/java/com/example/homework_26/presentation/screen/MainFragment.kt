@@ -1,7 +1,8 @@
 package com.example.homework_26.presentation.screen
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
-import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -28,7 +29,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
     }
 
     override fun bindActionListeners() {
-        setupSearchView()
+        setupSearch()
     }
 
     override fun bindObservers() {
@@ -48,7 +49,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.searchState.collect {
-                    Log.d("MainFragment", "handleSearchState is called")
                     handleSearchState(it)
                 }
             }
@@ -66,17 +66,14 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         binding.progressBar.isVisible = state.isLoading
     }
 
-    private fun setupSearchView() {
-        binding.svCategory.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                Log.d("MainFragment", "onQueryTextSubmit is called")
-                viewModel.onEvent(MainEvents.Search(query))
-                return true
+    private fun setupSearch() {
+        binding.svCategory.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.onEvent(MainEvents.Search(s.toString()))
             }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
     }
 }

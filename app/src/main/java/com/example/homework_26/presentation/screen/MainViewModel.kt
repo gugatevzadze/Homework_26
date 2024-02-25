@@ -9,15 +9,20 @@ import com.example.homework_26.domain.usecase.GetItemsUseCase
 import com.example.homework_26.presentation.event.MainEvents
 import com.example.homework_26.presentation.mapper.toPresentation
 import com.example.homework_26.presentation.state.SearchStates
-import com.example.homework_26.presentation.util.error_messages.getErrorMessage
+import com.example.homework_26.presentation.util.getErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getItemsUseCase: GetItemsUseCase
@@ -26,13 +31,28 @@ class MainViewModel @Inject constructor(
     private val _searchState = MutableStateFlow(SearchStates())
     val searchState: SharedFlow<SearchStates> get() = _searchState
 
+    private val _searchQuery = MutableStateFlow("")
+
+    init {
+        _searchQuery
+            .debounce(500)
+            .onEach { debouncedQuery ->
+                if (debouncedQuery.isEmpty()) {
+                    clearSearch()
+                } else {
+                    search(debouncedQuery)
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun onEvent(event: MainEvents) {
         when (event) {
-            is MainEvents.Search -> event.query?.let { search(it) }
-            is MainEvents.ClearSearch -> clearSearch()
+            is MainEvents.Search -> event.query?.let { _searchQuery.value = it }
             is MainEvents.UpdateErrorMessage -> updateErrorMessages(event.errorMessage)
         }
     }
+
     private fun search(query: String) {
         viewModelScope.launch {
             handleResource(getItemsUseCase.invoke(query = query)) { data ->
@@ -41,7 +61,6 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
-        Log.d("MainViewModel", "_searchState is updated")
     }
 
     private fun clearSearch() {

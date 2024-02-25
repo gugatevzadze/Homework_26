@@ -1,4 +1,4 @@
-package com.example.homework_26.presentation.util.error_messages
+package com.example.homework_26.presentation.util
 
 import com.example.homework_26.data.common.ErrorType
 

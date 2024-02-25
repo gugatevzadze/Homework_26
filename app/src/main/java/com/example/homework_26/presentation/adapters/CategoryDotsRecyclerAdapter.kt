@@ -1,15 +1,12 @@
 package com.example.homework_26.presentation.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.homework_26.databinding.ItemDotsBinding
-import com.example.homework_26.presentation.model.ItemsCategoryModel
 
 class CategoryDotsRecyclerAdapter(
-    private val item: ItemsCategoryModel
+    private val item: Int
 ) : RecyclerView.Adapter<CategoryDotsRecyclerAdapter.DotViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DotViewHolder {
@@ -17,25 +14,9 @@ class CategoryDotsRecyclerAdapter(
         return DotViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: DotViewHolder, position: Int) {
-        holder.bind(item)
-    }
+    override fun onBindViewHolder(holder: DotViewHolder, position: Int) {}
 
-    override fun getItemCount(): Int = 1
+    override fun getItemCount(): Int = minOf(item, 4)
 
-    inner class DotViewHolder(private val binding: ItemDotsBinding) : RecyclerView.ViewHolder(binding.root) {
-        private val dots = mutableListOf<AppCompatImageView>()
-
-        fun bind(item: ItemsCategoryModel) {
-            val parentCount = item.parentCount
-            dots.clear()
-            for (i in 0 until parentCount) {
-                val dot = AppCompatImageView(binding.root.context).apply {
-                    visibility = View.VISIBLE
-                }
-                dots.add(dot)
-                binding.llDots.addView(dot)
-            }
-        }
-    }
+    inner class DotViewHolder(binding: ItemDotsBinding) : RecyclerView.ViewHolder(binding.root)
 }

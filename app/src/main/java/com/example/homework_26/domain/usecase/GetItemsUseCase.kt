@@ -1,6 +1,5 @@
 package com.example.homework_26.domain.usecase
 
-import android.util.Log
 import com.example.homework_26.data.common.ErrorType
 import com.example.homework_26.data.common.Resource
 import com.example.homework_26.domain.model.ItemsCategory
